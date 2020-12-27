@@ -9,4 +9,6 @@
     <string name="default_currency_code">JPY</string>
     <string name="default_currency_name">Japanese Yen</string>
     <string name="usd">USD</string>
+    <string name="api_info">Exchange rates are provided courtesy of Currency Layer</string>
+    <string name="refresh_rates">Refresh Rates</string>
 </resources>

@@ -39,6 +39,7 @@
             app:helperText="United States Dollar"
             app:helperTextEnabled="true"
             app:helperTextTextAppearance="@style/TextAppearance.MaterialComponents.Subtitle2"
+            app:helperTextTextColor="@color/design_default_color_primary"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/txtUSDCode"
             app:layout_constraintTop_toTopOf="parent">
@@ -72,6 +73,7 @@
             android:layout_marginTop="50dp"
             app:helperTextEnabled="true"
             app:helperTextTextAppearance="@style/TextAppearance.MaterialComponents.Subtitle2"
+            app:helperTextTextColor="@color/design_default_color_primary"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/txtCurrencyCode"
             app:layout_constraintTop_toBottomOf="@+id/lytUsdNum">
@@ -90,13 +92,24 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="Exchange rates are provided courtesy of Currency Layer"
+            android:text="@string/api_info"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
             android:textColor="@color/gray"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/lytCurrencyNum" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnRefresh"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="@string/refresh_rates"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/txtInspector" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

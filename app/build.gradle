@@ -35,7 +35,7 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
-    buildFeatures{
+    buildFeatures {
         dataBinding true
     }
 }
@@ -49,9 +49,20 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'com.google.android.material:material:1.2.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
+
+    //Unit-tests
     testImplementation 'junit:junit:4.13.1'
+    testImplementation 'org.mockito:mockito-core:3.5.13'
+    testImplementation 'org.mockito:mockito-inline:2.13.0'
+
+    //Instrumentation-tests
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+    androidTestImplementation "androidx.arch.core:core-testing:2.1.0"
+    androidTestImplementation('org.jetbrains.kotlinx:kotlinx-coroutines-test:1.4.1') {
+        // conflicts with mockito due to direct inclusion of byte buddy
+        exclude group: "org.jetbrains.kotlinx", module: "kotlinx-coroutines-debug"
+    }
 
     //Retrofit
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'

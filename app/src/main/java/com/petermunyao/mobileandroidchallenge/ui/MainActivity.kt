@@ -1,25 +1,20 @@
 package com.petermunyao.mobileandroidchallenge.ui
 
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
-import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 import com.infinum.dbinspector.DbInspector
 import com.petermunyao.mobileandroidchallenge.R
 import com.petermunyao.mobileandroidchallenge.databinding.ActivityMainBinding
 import com.petermunyao.mobileandroidchallenge.viewmodels.MainViewModel
 import com.pixplicity.easyprefs.library.Prefs
 import dagger.hilt.android.AndroidEntryPoint
-import timber.log.Timber
 import java.util.*
-import kotlin.math.round
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -32,22 +27,8 @@ class MainActivity : AppCompatActivity() {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         binding!!.lifecycleOwner = this
         supportActionBar?.title = getString(R.string.activity_title)
-        setTransparentDrawable(binding!!.txtUSDCode)
         binding!!.etxtUsdNum.addTextChangedListener(usdWatcher)
-        //binding!!.etxtCurrencyNum.addTextChangedListener(otherCurrencyWatcher)
-
-        if (Prefs.contains(getString(R.string.preferred_currency_code))) {
-            binding!!.txtCurrencyCode.text =
-                Prefs.getString(
-                    getString(R.string.preferred_currency_code),
-                    getString(R.string.default_currency_code)
-                )
-            binding!!.lytCurrencyNum.helperText =
-                Prefs.getString(
-                    getString(R.string.preferred_currency_name),
-                    getString(R.string.default_currency_name)
-                )
-        }
+        setPreferredCurrencyToViews()
 
         //Get supported currencies from local db, if not present fetch from remote
         viewModel.getLocalCurrencies().observe(this, {
@@ -62,11 +43,20 @@ class MainActivity : AppCompatActivity() {
         viewModel.getLocalExchangeRates().observe(this, {
             if (it != null) {
                 viewModel.setCurrentRatesToMemory(it.currencyRates)
+                viewModel.lastRefreshTime = it.timeStamp
             } else {
                 viewModel.getRemoteExchangeRates()
             }
         })
 
+        //Observe error cases when making network calls
+        viewModel.errorLiveData.observe(this, {
+            if (it != null) {
+                showSnackbar(it)
+            }
+        })
+
+        //Show supported currencies in a confirmation dialog
         binding!!.txtCurrencyCode.setOnClickListener {
             MaterialAlertDialogBuilder(this@MainActivity)
                 .setTitle(resources.getString(R.string.dialog_title))
@@ -74,12 +64,14 @@ class MainActivity : AppCompatActivity() {
                     dialog.dismiss()
                 }
                 .setPositiveButton(resources.getString(R.string.dialog_ok)) { dialog, _ ->
-                    if (viewModel.getExchangeRate(binding!!.txtCurrencyCode.text as String) != null) {
-                        val otherCurrencyResult =
-                            viewModel.getExchangeRate(binding!!.txtCurrencyCode.text as String)!! * (binding!!.etxtUsdNum.text.toString()
-                                .toFloat())
-                        binding!!.currencyInput =
-                            (round(otherCurrencyResult * 1000) / 1000).toString()
+                    if (binding!!.etxtUsdNum.text.toString().isNotEmpty()) {
+                        binding!!.currencyInput = viewModel.calculateOtherCurrencyValue(
+                            binding!!.etxtUsdNum.text.toString(),
+                            binding!!.txtCurrencyCode.text as String
+                        )
+
+                    } else {
+                        binding!!.currencyInput = ""
                     }
                     dialog.dismiss()
                 }
@@ -94,6 +86,18 @@ class MainActivity : AppCompatActivity() {
                 .show()
         }
 
+        binding!!.btnRefresh.setOnClickListener {
+            if (viewModel.lastRefreshTime == null) {
+                viewModel.getRemoteExchangeRates()
+            } else {
+                if (viewModel.refreshExchangeRates(viewModel.lastRefreshTime!!)) {
+                    showSnackbar("Latest exchange rates are being fetched")
+                } else {
+                    showSnackbar("Refresh calls are limited to 30 minute intervals")
+                }
+            }
+        }
+
         binding!!.txtInspector.setOnClickListener {
             DbInspector.show()
         }
@@ -103,34 +107,10 @@ class MainActivity : AppCompatActivity() {
         override fun afterTextChanged(s: Editable?) {
             if (s != null) {
                 if (s.isNotEmpty()) {
-                    val usdFormatted = s.toString().toFloat()
-                    if (viewModel.getExchangeRate(binding!!.txtCurrencyCode.text as String) != null) {
-                        val otherCurrencyResult =
-                            viewModel.getExchangeRate(binding!!.txtCurrencyCode.text as String)!! * usdFormatted
-                        binding!!.currencyInput =
-                            (round(otherCurrencyResult * 1000) / 1000).toString()
-                    }
-                }
-            }
-        }
-
-        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-        }
-
-        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-        }
-    }
-
-    private val otherCurrencyWatcher = object : TextWatcher {
-        override fun afterTextChanged(s: Editable?) {
-            if (s != null) {
-                if (s.isNotEmpty()) {
-                    val currencyFormatted = s.toString().toFloat()
-                    if (viewModel.getExchangeRate(binding!!.txtCurrencyCode.text as String) != null) {
-                        val usdResult =
-                            currencyFormatted / viewModel.getExchangeRate(binding!!.txtCurrencyCode.text as String)!!
-                        binding!!.usdInput = (round(usdResult * 10000) / 1000).toString()
-                    }
+                    binding!!.currencyInput = viewModel.calculateOtherCurrencyValue(
+                        s.toString(),
+                        binding!!.txtCurrencyCode.text as String
+                    )
                 }
             }
         }
@@ -147,14 +127,20 @@ class MainActivity : AppCompatActivity() {
         Prefs.putString(getString(R.string.preferred_currency_name), currencyName)
     }
 
-    private fun setTransparentDrawable(textview: TextView) {
-        val tranparentDrawable = ColorDrawable(Color.TRANSPARENT)
-        textview.setCompoundDrawablesRelativeWithIntrinsicBounds(
-            null,
-            null,
-            tranparentDrawable,
-            null
-        )
+    private fun setPreferredCurrencyToViews() {
+        binding?.txtCurrencyCode?.text =
+            Prefs.getString(
+                getString(R.string.preferred_currency_code),
+                getString(R.string.default_currency_code)
+            )
+        binding?.lytCurrencyNum?.helperText =
+            Prefs.getString(
+                getString(R.string.preferred_currency_name),
+                getString(R.string.default_currency_name)
+            )
     }
 
+    private fun showSnackbar(message: String) {
+        Snackbar.make(binding?.root!!, message, Snackbar.LENGTH_SHORT).show()
+    }
 }

@@ -1,7 +1,7 @@
 package com.petermunyao.mobileandroidchallenge.viewmodels
 
-import android.util.Log
 import androidx.hilt.lifecycle.ViewModelInject
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
@@ -9,14 +9,19 @@ import com.petermunyao.mobileandroidchallenge.model.ExchangeRates
 import com.petermunyao.mobileandroidchallenge.model.SupportedCurrencies
 import com.petermunyao.mobileandroidchallenge.repository.Repository
 import kotlinx.coroutines.launch
+import java.io.IOException
+import java.net.SocketTimeoutException
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
+import kotlin.math.round
 
 class MainViewModel @ViewModelInject constructor(private val repository: Repository) : ViewModel() {
 
     var currenciesList: MutableList<String> = ArrayList()
     var rates: MutableMap<String, Float> = HashMap()
+    var lastRefreshTime: Date? = null
+    var errorLiveData: MutableLiveData<String> = MutableLiveData()
 
     fun getRemoteCurrencies() {
         viewModelScope.launch {
@@ -25,9 +30,13 @@ class MainViewModel @ViewModelInject constructor(private val repository: Reposit
                 if (response.success == true && response.error == null) {
                     val supportedCurrencies = SupportedCurrencies(response.currencies!!)
                     repository.insertCurrencies(supportedCurrencies)
+                } else {
+                    if (response.error != null) {
+                        errorLiveData.value = response.error?.info
+                    }
                 }
             } catch (exception: Exception) {
-
+                errorLiveData.value = handleCommonExceptions(exception)
             }
         }
     }
@@ -39,8 +48,13 @@ class MainViewModel @ViewModelInject constructor(private val repository: Reposit
                 if (response.success == true && response.error == null) {
                     val exchangeRates = ExchangeRates(response.quotes!!, Date())
                     repository.insertRates(exchangeRates)
+                } else {
+                    if (response.error != null) {
+                        errorLiveData.value = response.error?.info
+                    }
                 }
             } catch (exception: Exception) {
+                errorLiveData.value = handleCommonExceptions(exception)
             }
         }
     }
@@ -57,9 +71,12 @@ class MainViewModel @ViewModelInject constructor(private val repository: Reposit
         return referenceTime.before(timeNow)
     }
 
-    fun refreshExchangeRates(date: Date) {
-        if (isThirtyMinsPassed(date)) {
+    fun refreshExchangeRates(date: Date): Boolean {
+        return if (isThirtyMinsPassed(date)) {
             getRemoteExchangeRates()
+            true
+        } else {
+            false
         }
     }
 
@@ -78,4 +95,26 @@ class MainViewModel @ViewModelInject constructor(private val repository: Reposit
     fun getExchangeRate(currencyCode: String): Float? {
         return rates["USD${currencyCode}"]
     }
+
+    fun calculateOtherCurrencyValue(usdAmount: String, currencyCode: String): String {
+        return if (getExchangeRate(currencyCode) != null) {
+            val otherCurrencyResult = getExchangeRate(currencyCode)!! * usdAmount.toFloat()
+            (round(otherCurrencyResult * 1000) / 1000).toString()
+        } else {
+            ""
+        }
+    }
+
+    private fun handleCommonExceptions(exception: Exception): String {
+        return when (exception) {
+            is SocketTimeoutException -> {
+                "Could not make a connection in time, check your Internet Connection"
+            }
+            is IOException -> {
+                "There was a network error, check your internet connection & retry"
+            }
+            else -> exception.message ?: "There was an unforeseen error"
+        }
+    }
+
 }
