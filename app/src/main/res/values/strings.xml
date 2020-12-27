@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">Mobile(Android)Challenge</string>
+    <string name="dialog_title">Choose a Currency</string>
+    <string name="dialog_cancel">Cancel</string>
+    <string name="dialog_ok">OK</string>
+    <string name="preferred_currency_code">preferredCode</string>
+    <string name="preferred_currency_name">preferredName</string>
+    <string name="activity_title">Currency Converter</string>
+    <string name="default_currency_code">JPY</string>
+    <string name="default_currency_name">Japanese Yen</string>
+    <string name="usd">USD</string>
 </resources>

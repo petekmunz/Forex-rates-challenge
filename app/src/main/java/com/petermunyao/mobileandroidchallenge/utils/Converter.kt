@@ -43,7 +43,7 @@ object Converter {
     @JvmStatic
     fun stringToMapFloat(value: String): Map<String, Float> {
         val classType =
-            Types.newParameterizedType(Map::class.java, String::class.java, Float::class.java)
+            Types.newParameterizedType(Map::class.java, String::class.java, Float::class.javaObjectType)
         val moshi = Moshi.Builder().build()
         val jsonAdapter = moshi.adapter<Map<String, Float>>(classType)
         return jsonAdapter.fromJson(value)!!
@@ -53,7 +53,7 @@ object Converter {
     @JvmStatic
     fun mapFloatToString(value: Map<String, Float>?): String {
         val classType =
-            Types.newParameterizedType(Map::class.java, String::class.java, Float::class.java)
+            Types.newParameterizedType(Map::class.java, String::class.java, Float::class.javaObjectType)
         val moshi = Moshi.Builder().build()
         val jsonAdapter = moshi.adapter<Map<String, Float>>(classType)
         return if (value == null) "" else jsonAdapter.toJson(value)

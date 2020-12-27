@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId "com.petermunyao.mobileandroidchallenge"
-        minSdkVersion 16
+        minSdkVersion 21
         targetSdkVersion 30
         versionCode 1
         versionName "1.0"
@@ -34,6 +34,9 @@ android {
     }
     kotlinOptions {
         jvmTarget = '1.8'
+    }
+    buildFeatures{
+        dataBinding true
     }
 }
 
@@ -65,10 +68,14 @@ dependencies {
     implementation 'androidx.hilt:hilt-lifecycle-viewmodel:1.0.0-alpha02'
     kapt 'androidx.hilt:hilt-compiler:1.0.0-alpha02'
 
-    //Timber
-    implementation 'com.jakewharton.timber:timber:4.7.1'
-
-    //Lifecycle
+    //KTX
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0"
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:2.2.0"
+    implementation "androidx.activity:activity-ktx:1.1.0"
+
+    //SharedPref Lib
+    implementation 'com.pixplicity.easyprefs:library:1.9.0'
+
+    debugImplementation "com.infinum.dbinspector:dbinspector:5.0.1"
+    releaseImplementation "com.infinum.dbinspector:dbinspector-no-op:5.0.1"
 }
