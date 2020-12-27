@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId "com.petermunyao.mobileandroidchallenge"
-        minSdkVersion 21
+        minSdkVersion 17
         targetSdkVersion 30
         versionCode 1
         versionName "1.0"
@@ -86,7 +86,4 @@ dependencies {
 
     //SharedPref Lib
     implementation 'com.pixplicity.easyprefs:library:1.9.0'
-
-    debugImplementation "com.infinum.dbinspector:dbinspector:5.0.1"
-    releaseImplementation "com.infinum.dbinspector:dbinspector-no-op:5.0.1"
 }
