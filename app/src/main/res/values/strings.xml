@@ -3,12 +3,15 @@
     <string name="dialog_title">Choose a Currency</string>
     <string name="dialog_cancel">Cancel</string>
     <string name="dialog_ok">OK</string>
-    <string name="preferred_currency_code">preferredCode</string>
-    <string name="preferred_currency_name">preferredName</string>
+    <string name="preferred_secondary_code">secondaryCode</string>
+    <string name="preferred_secondary_name">secondaryName</string>
+    <string name="preferred_primary_code">primaryCode</string>
+    <string name="preferred_primary_name">primaryName</string>
     <string name="activity_title">Currency Converter</string>
-    <string name="default_currency_code">JPY</string>
-    <string name="default_currency_name">Japanese Yen</string>
-    <string name="usd">USD</string>
+    <string name="secondary_currency_code">JPY</string>
+    <string name="secondary_currency_name">Japanese Yen</string>
+    <string name="primary_currency_code">USD</string>
+    <string name="primary_currency_name">United States Dollar</string>
     <string name="api_info">Exchange rates are provided courtesy of Currency Layer</string>
     <string name="refresh_rates">Refresh Rates</string>
 </resources>

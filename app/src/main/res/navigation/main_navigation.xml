@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_navigation"
+    app:startDestination="@id/nav_main">
+    <fragment
+        android:id="@+id/nav_main"
+        android:name="com.petermunyao.mobileandroidchallenge.ui.FragmentMain"
+        android:label="Currency Converter"
+        tools:layout="@layout/fragment_main">
+        <action
+            android:id="@+id/action_show_detailed_rates"
+            app:destination="@id/nav_rates"
+            app:enterAnim="@anim/nav_default_pop_enter_anim"
+            app:exitAnim="@anim/nav_default_pop_exit_anim"
+            app:popEnterAnim="@anim/nav_default_pop_enter_anim"
+            app:popExitAnim="@anim/nav_default_pop_exit_anim" />
+        <argument
+            android:name="currencySelected"
+            app:argType="string"
+            android:defaultValue="JPY" />
+    </fragment>
+    <fragment
+        android:id="@+id/nav_rates"
+        android:name="com.petermunyao.mobileandroidchallenge.ui.FragmentRatesDetailed"
+        android:label="Exchange Rates"
+        tools:layout="@layout/fragment_rates_detailed" />
+</navigation>

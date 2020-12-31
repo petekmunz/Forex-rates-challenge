@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
+import com.petermunyao.mobileandroidchallenge.model.ExchangeRateInfo
 import com.petermunyao.mobileandroidchallenge.model.ExchangeRates
 import com.petermunyao.mobileandroidchallenge.model.SupportedCurrencies
 import com.petermunyao.mobileandroidchallenge.repository.Repository
@@ -92,17 +93,21 @@ class MainViewModel @ViewModelInject constructor(private val repository: Reposit
         rates.putAll(exchangeRates)
     }
 
-    fun getExchangeRate(currencyCode: String): Float? {
-        return rates["USD${currencyCode}"]
-    }
-
-    fun calculateOtherCurrencyValue(usdAmount: String, currencyCode: String): String {
-        return if (getExchangeRate(currencyCode) != null) {
-            val otherCurrencyResult = getExchangeRate(currencyCode)!! * usdAmount.toFloat()
-            (round(otherCurrencyResult * 1000) / 1000).toString()
+    fun calculateAmountFromRate(
+        primaryCurrency: String,
+        secondaryCurrency: String,
+        amount: String
+    ): String {
+        val primaryRate = rates["USD$primaryCurrency"]
+        val secondaryRate = rates["USD$secondaryCurrency"]
+        return if (primaryRate != null && secondaryRate != null) {
+            val effectiveRate = secondaryRate / primaryRate
+            val result = effectiveRate * amount.toFloat()
+            (round(result * 1000) / 1000).toString()
         } else {
             ""
         }
+
     }
 
     private fun handleCommonExceptions(exception: Exception): String {
@@ -114,6 +119,24 @@ class MainViewModel @ViewModelInject constructor(private val repository: Reposit
                 "There was a network error, check your internet connection & retry"
             }
             else -> exception.message ?: "There was an unforeseen error"
+        }
+    }
+
+    fun getExchangeRatesForSelectedCurrency(currencyCode: String): List<ExchangeRateInfo> {
+        val usdToSelected = rates["USD$currencyCode"]
+        return if (usdToSelected != null) {
+            val exchangeInfo = rates.map {
+                ExchangeRateInfo(
+                    currencyCode,
+                    it.key.substringAfter("USD"),
+                    (round((it.value / usdToSelected) * 1000) / 1000).toString(),
+                    (round((usdToSelected / it.value) * 1000) / 1000).toString()
+                )
+            } as MutableList
+            exchangeInfo.sortBy { it.otherCurrency }
+            exchangeInfo
+        } else {
+            emptyList()
         }
     }
 
