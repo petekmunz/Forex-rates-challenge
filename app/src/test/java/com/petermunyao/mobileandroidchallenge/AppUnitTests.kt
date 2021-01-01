@@ -60,7 +60,7 @@ class AppUnitTests {
     }
 
     @Test
-    fun `exception handling is correct, expect a string message`() {
+    fun `exception handling is correct, expect a string message of the exception`() {
         val method =
             viewModel.javaClass.getDeclaredMethod("handleCommonExceptions", Exception::class.java)
         method.isAccessible = true
@@ -95,7 +95,7 @@ class AppUnitTests {
     val rule = InstantTaskExecutorRule()
 
     @Test
-    fun `get currencies from remote runs into error, expect error livedata to have message`() =
+    fun `get currencies from remote runs into error, expect error livedata to have error message`() =
         testDispatcher.runBlockingTest {
             given(viewModel.getRemoteCurrencies()).willThrow(RuntimeException())
             assertThat(

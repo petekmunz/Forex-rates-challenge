@@ -36,7 +36,7 @@ class FragmentMain : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding?.etxtPrimaryAmount?.addTextChangedListener(usdWatcher)
+        binding?.etxtPrimaryAmount?.addTextChangedListener(primaryCurrencyWatcher)
         setPreferredCurrencyToViews()
         //Get supported currencies from local db, if not present fetch from remote
         viewModel.getLocalCurrencies().observe(viewLifecycleOwner, {
@@ -157,7 +157,7 @@ class FragmentMain : Fragment() {
         binding = null
     }
 
-    private val usdWatcher = object : TextWatcher {
+    private val primaryCurrencyWatcher = object : TextWatcher {
         override fun afterTextChanged(s: Editable?) {
             if (s != null) {
                 if (s.isNotEmpty() && s.toString() != ".") {

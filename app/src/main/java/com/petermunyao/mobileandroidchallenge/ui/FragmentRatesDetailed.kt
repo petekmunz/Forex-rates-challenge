@@ -45,7 +45,7 @@ class FragmentRatesDetailed : Fragment() {
             binding?.recyclerView?.adapter = adapter
             adapter!!.submitList(exchangeRates)
         } else {
-            Toast.makeText(requireContext(), "Is null", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "No currency selected", Toast.LENGTH_SHORT).show()
         }
     }
 

@@ -4,7 +4,6 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
-import androidx.navigation.Navigation
 import androidx.navigation.fragment.NavHostFragment
 import com.petermunyao.mobileandroidchallenge.R
 import dagger.hilt.android.AndroidEntryPoint
@@ -12,8 +11,7 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
-
-    var navController: NavController? = null
+    private lateinit var navController: NavController
     private lateinit var destinationListener: NavController.OnDestinationChangedListener
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -29,6 +27,6 @@ class MainActivity : AppCompatActivity() {
                     supportActionBar!!.title = "Currency Converter"
                 }
             }
-        navController!!.addOnDestinationChangedListener(destinationListener)
+        navController.addOnDestinationChangedListener(destinationListener)
     }
 }
