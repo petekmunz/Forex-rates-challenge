@@ -42,7 +42,7 @@ Libraries used in the application include:
 * [EasyPrefs](https://github.com/Pixplicity/EasyPrefs)
 
 ## Screenshots
-<img src="images/screenshot_1.png" width=150 height=280>
-
-<img src="images/screenshot_2.png" width=150 height=280>
-
+<p align="middle">
+<img src="images/screenshot_1.png" width=170 height=300>
+<img src="images/screenshot_2.png" width=170 height=300>
+</p>
