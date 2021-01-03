@@ -36,7 +36,6 @@ class RepositoryModule {
         return database.getCurrenciesDao()
     }
 
-
     @Provides
     @Singleton
     fun provideLocalDataSource(currenciesDao: CurrenciesDao): LocalData {

@@ -13,16 +13,17 @@ import kotlinx.coroutines.launch
 import java.io.IOException
 import java.net.SocketTimeoutException
 import java.util.*
-import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 import kotlin.math.round
 
 class MainViewModel @ViewModelInject constructor(private val repository: Repository) : ViewModel() {
 
-    var currenciesList: MutableList<String> = ArrayList()
+    lateinit var currenciesList: Array<String>
     var rates: MutableMap<String, Float> = HashMap()
     var lastRefreshTime: Date? = null
     var errorLiveData: MutableLiveData<String> = MutableLiveData()
+
+    fun isCurrenciesListInitialized() = ::currenciesList.isInitialized
 
     fun getRemoteCurrencies() {
         viewModelScope.launch {
@@ -82,10 +83,11 @@ class MainViewModel @ViewModelInject constructor(private val repository: Reposit
     }
 
     fun setCurrenciesToListInMemory(currenciesMap: Map<String, String>) {
-        currenciesList.clear()
-        currenciesList.addAll(currenciesMap.map {
-            "${it.value} ${it.key}"
-        })
+        if (!isCurrenciesListInitialized()) {
+            currenciesList = currenciesMap.map {
+                "${it.key} ${it.value}"
+            }.toTypedArray()
+        }
     }
 
     fun setCurrentRatesToMemory(exchangeRates: Map<String, Float>) {
@@ -139,5 +141,4 @@ class MainViewModel @ViewModelInject constructor(private val repository: Reposit
             emptyList()
         }
     }
-
 }

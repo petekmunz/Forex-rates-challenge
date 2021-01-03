@@ -4,7 +4,6 @@ import androidx.room.TypeConverter
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.Types
 import java.util.*
-import kotlin.collections.HashMap
 
 object Converter {
     @TypeConverter

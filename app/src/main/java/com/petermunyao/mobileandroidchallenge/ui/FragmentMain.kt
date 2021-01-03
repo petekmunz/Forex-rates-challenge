@@ -66,67 +66,75 @@ class FragmentMain : Fragment() {
 
         //Show supported currencies in a confirmation dialog
         binding?.txtPrimaryCode?.setOnClickListener {
-            MaterialAlertDialogBuilder(requireActivity())
-                .setTitle(getString(R.string.dialog_title))
-                .setNeutralButton(getString(R.string.dialog_cancel)) { dialog, _ ->
-                    dialog.dismiss()
-                }
-                .setPositiveButton(getString(R.string.dialog_ok)) { dialog, _ ->
-                    if (binding?.etxtPrimaryAmount?.text.toString()
-                            .isNotEmpty() && binding?.etxtPrimaryAmount?.toString() != "."
-                    ) {
-                        binding?.currencySecondaryInput =
-                            viewModel.calculateAmountFromRate(
-                                binding?.txtPrimaryCode?.text as String,
-                                binding?.txtSecondaryCode?.text as String,
-                                binding?.etxtPrimaryAmount?.text.toString()
-                            )
-
-                    } else {
-                        binding?.currencySecondaryInput = ""
+            if (viewModel.isCurrenciesListInitialized()) {
+                MaterialAlertDialogBuilder(requireActivity())
+                    .setTitle(getString(R.string.dialog_title))
+                    .setNeutralButton(getString(R.string.dialog_cancel)) { dialog, _ ->
+                        dialog.dismiss()
                     }
-                    dialog.dismiss()
-                }
-                .setSingleChoiceItems(viewModel.currenciesList.toTypedArray(), 1) { _, which ->
-                    val currencyFull = viewModel.currenciesList[which]
-                    val currencyCode = currencyFull.substring(currencyFull.length - 3)
-                    val currencyName = currencyFull.substring(0, currencyFull.length - 3)
-                    setPreferredPrimaryCurrencyToPrefs(currencyCode, currencyName)
-                    binding?.currencyPrimary = currencyCode
-                    binding?.lytCurrencyPrimary?.helperText = currencyName
-                }.show()
+                    .setPositiveButton(getString(R.string.dialog_ok)) { dialog, _ ->
+                        if (binding?.etxtPrimaryAmount?.text.toString()
+                                .isNotEmpty() && binding?.etxtPrimaryAmount?.toString() != "."
+                        ) {
+                            binding?.currencySecondaryInput =
+                                viewModel.calculateAmountFromRate(
+                                    binding?.txtPrimaryCode?.text as String,
+                                    binding?.txtSecondaryCode?.text as String,
+                                    binding?.etxtPrimaryAmount?.text.toString()
+                                )
+
+                        } else {
+                            binding?.currencySecondaryInput = ""
+                        }
+                        dialog.dismiss()
+                    }
+                    .setSingleChoiceItems(viewModel.currenciesList, 1) { _, which ->
+                        val currencyFull = viewModel.currenciesList[which]
+                        val currencyCode = currencyFull.substring(0, 3)
+                        val currencyName = currencyFull.substring(4)
+                        setPreferredPrimaryCurrencyToPrefs(currencyCode, currencyName)
+                        binding?.currencyPrimary = currencyCode
+                        binding?.lytCurrencyPrimary?.helperText = currencyName
+                    }.show()
+            } else {
+                showSnackbar("Currencies have not been retrieved, turn on internet connection & restart app")
+            }
         }
         binding?.txtSecondaryCode?.setOnClickListener {
-            MaterialAlertDialogBuilder(requireActivity())
-                .setTitle(getString(R.string.dialog_title))
-                .setNeutralButton(getString(R.string.dialog_cancel)) { dialog, _ ->
-                    dialog.dismiss()
-                }
-                .setPositiveButton(getString(R.string.dialog_ok)) { dialog, _ ->
-                    if (binding?.etxtPrimaryAmount?.text.toString()
-                            .isNotEmpty() && binding?.etxtPrimaryAmount?.toString() != "."
-                    ) {
-                        binding?.currencySecondaryInput =
-                            viewModel.calculateAmountFromRate(
-                                binding?.txtPrimaryCode?.text as String,
-                                binding?.txtSecondaryCode?.text as String,
-                                binding?.etxtPrimaryAmount?.text.toString()
-                            )
-
-                    } else {
-                        binding?.currencySecondaryInput = ""
+            if (viewModel.isCurrenciesListInitialized()) {
+                MaterialAlertDialogBuilder(requireActivity())
+                    .setTitle(getString(R.string.dialog_title))
+                    .setNeutralButton(getString(R.string.dialog_cancel)) { dialog, _ ->
+                        dialog.dismiss()
                     }
-                    dialog.dismiss()
-                }
-                .setSingleChoiceItems(viewModel.currenciesList.toTypedArray(), 1) { _, which ->
-                    val currencyFull = viewModel.currenciesList[which]
-                    val currencyCode = currencyFull.substring(currencyFull.length - 3)
-                    val currencyName = currencyFull.substring(0, currencyFull.length - 3)
-                    setPreferredSecondaryCurrencyToPrefs(currencyCode, currencyName)
-                    binding?.currencySecondary = currencyCode
-                    binding?.lytCurrencySecondary?.helperText = currencyName
-                }
-                .show()
+                    .setPositiveButton(getString(R.string.dialog_ok)) { dialog, _ ->
+                        if (binding?.etxtPrimaryAmount?.text.toString()
+                                .isNotEmpty() && binding?.etxtPrimaryAmount?.toString() != "."
+                        ) {
+                            binding?.currencySecondaryInput =
+                                viewModel.calculateAmountFromRate(
+                                    binding?.txtPrimaryCode?.text as String,
+                                    binding?.txtSecondaryCode?.text as String,
+                                    binding?.etxtPrimaryAmount?.text.toString()
+                                )
+
+                        } else {
+                            binding?.currencySecondaryInput = ""
+                        }
+                        dialog.dismiss()
+                    }
+                    .setSingleChoiceItems(viewModel.currenciesList, 1) { _, which ->
+                        val currencyFull = viewModel.currenciesList[which]
+                        val currencyCode = currencyFull.substring(0, 3)
+                        val currencyName = currencyFull.substring(4)
+                        setPreferredSecondaryCurrencyToPrefs(currencyCode, currencyName)
+                        binding?.currencySecondary = currencyCode
+                        binding?.lytCurrencySecondary?.helperText = currencyName
+                    }
+                    .show()
+            } else {
+                showSnackbar("Currencies have not been retrieved, turn on internet connection & restart app")
+            }
         }
 
         binding?.btnRefresh?.setOnClickListener {

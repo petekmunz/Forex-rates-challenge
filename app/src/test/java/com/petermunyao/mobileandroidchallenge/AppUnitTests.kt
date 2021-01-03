@@ -1,6 +1,8 @@
 package com.petermunyao.mobileandroidchallenge
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import com.petermunyao.mobileandroidchallenge.model.CurrenciesResponse
+import com.petermunyao.mobileandroidchallenge.model.ErrorInfo
 import com.petermunyao.mobileandroidchallenge.repository.LocalData
 import com.petermunyao.mobileandroidchallenge.repository.RemoteData
 import com.petermunyao.mobileandroidchallenge.repository.Repository
@@ -25,14 +27,17 @@ import java.util.*
 @ExperimentalCoroutinesApi
 class AppUnitTests {
     private lateinit var viewModel: MainViewModel
+    private lateinit var localData: LocalData
+    private lateinit var remoteData: RemoteData
+    private lateinit var repository: Repository
     private val testDispatcher = TestCoroutineDispatcher()
 
     @Before
     fun initializeViewModel() {
         Dispatchers.setMain(testDispatcher)
-        val localData = mock(LocalData::class.java)
-        val remoteData = mock(RemoteData::class.java)
-        val repository = Repository(localData, remoteData)
+        localData = mock(LocalData::class.java)
+        remoteData = mock(RemoteData::class.java)
+        repository = Repository(localData, remoteData)
         viewModel = MainViewModel(repository)
         viewModel.rates = mapOf(
             "USDUSD" to 1F,
@@ -82,13 +87,22 @@ class AppUnitTests {
     fun `currencies are set in cache correctly`() {
         val currencies = mapOf("JPY" to "Japanese Yen", "KSH" to "Kenyan Shillings")
         viewModel.setCurrenciesToListInMemory(currencies)
-        assertThat(viewModel.currenciesList[0], `is`("Japanese Yen JPY"))
+        assertThat(viewModel.currenciesList[0], `is`("JPY Japanese Yen"))
     }
 
     @Test
     fun `refresh operation is correct`() {
         val date = Date()
         assertThat(viewModel.refreshExchangeRates(date), `is`(false))
+    }
+
+    @Test
+    fun `currencies are correctly set to array once per viewmodel lifetime, expect concatenation of key and value of firstMap`() {
+        val firstMap = mapOf("USD" to "United States Dollar", "JPY" to "Japanese Yen")
+        val secondMap = mapOf("ETB" to "Ethiopian Birr", "CAD" to "Canadian Dollar")
+        viewModel.setCurrenciesToListInMemory(firstMap)
+        viewModel.setCurrenciesToListInMemory(secondMap)
+        assertThat(viewModel.currenciesList[0], `is`("USD United States Dollar"))
     }
 
     @get:Rule
@@ -101,6 +115,21 @@ class AppUnitTests {
             assertThat(
                 viewModel.errorLiveData.value,
                 `is`("There was an unforeseen error")
+            )
+        }
+
+    @Test
+    fun `get currencies from remote returns unsuccessful response, expect error livedata to have error message`() =
+        testDispatcher.runBlockingTest {
+            val errorInfo = ErrorInfo(
+                104,
+                "Your monthly usage limit has been reached. Please upgrade your subscription plan."
+            )
+            given(remoteData.getCurrencies()).willReturn(CurrenciesResponse(false, null, errorInfo))
+            viewModel.getRemoteCurrencies()
+            assertThat(
+                viewModel.errorLiveData.value,
+                `is`("Your monthly usage limit has been reached. Please upgrade your subscription plan.")
             )
         }
 }

@@ -23,7 +23,7 @@ To overcome limitation 2, and allow for converting from one currency to another,
 ## Architecture
 The app follows MVVM architecture with a general overview as seen below.
 
-![Screenshot](architecture.png)
+![Screenshot](images/architecture.png)
 
 [Image Source](https://developer.android.com/topic/libraries/architecture/images/final-architecture.png)
 
@@ -40,4 +40,9 @@ Libraries used in the application include:
 * [Moshi](https://github.com/square/moshi)
 * [Hilt](https://developer.android.com/training/dependency-injection/hilt-android)
 * [EasyPrefs](https://github.com/Pixplicity/EasyPrefs)
+
+## Screenshots
+<img src="images/screenshot_1.png" width=150 height=280>
+
+<img src="images/screenshot_2.png" width=150 height=280>
 
