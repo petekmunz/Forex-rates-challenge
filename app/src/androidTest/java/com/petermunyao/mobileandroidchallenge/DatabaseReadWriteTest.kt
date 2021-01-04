@@ -50,7 +50,7 @@ class DatabaseReadWriteTest {
 
     @Test
     @Throws(Exception::class)
-    fun writeAndReadUserInDb() = testDispatcher.runBlockingTest {
+    fun writeAndReadCurrencyInDb() = testDispatcher.runBlockingTest {
         val testCurrency = mapOf("JPY" to "Japanese Yen")
         val supportedCurrencies = SupportedCurrencies(
             testCurrency
